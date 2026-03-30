@@ -2,7 +2,8 @@ name: Build and Push to GHCR
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   build:
@@ -10,17 +11,21 @@ jobs:
 
     permissions:
       contents: read
-      packages: write   # 👈 สำคัญสำหรับ GHCR
+      packages: write
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Login to GHCR
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build image
-        run: docker build -t ghcr.io/tuangsit-msi/my-kubernetes-app:latest .
-
-      - name: Push image
-        run: docker push ghcr.io/tuangsit-msi/my-kubernetes-app:latest
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}:latest
