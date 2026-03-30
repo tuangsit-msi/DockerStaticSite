@@ -1,30 +1,26 @@
 name: Build and Push to GHCR
 
 on:
-push:
-branches:
-- main
+  push:
+    branches: [ "main" ]
 
 jobs:
-build:
-runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-```
-permissions:
-  contents: read
-  packages: write
+    permissions:
+      contents: read
+      packages: write   # 👈 สำคัญสำหรับ GHCR
 
-steps:
-  - name: Checkout
-    uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
-  - name: Login to GHCR
-    run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-  - name: Build image
-    run: docker build -t ghcr.io/tuangsit-msi/my-kubernetes-app:latest .
+      - name: Build image
+        run: docker build -t ghcr.io/tuangsit-msi/my-kubernetes-app:latest .
 
-  - name: Push image
-    run: docker push ghcr.io/tuangsit-msi/my-kubernetes-app:latest
-```
-
+      - name: Push image
+        run: docker push ghcr.io/tuangsit-msi/my-kubernetes-app:latest
